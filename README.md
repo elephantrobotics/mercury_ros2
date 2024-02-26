@@ -1,2 +1,2 @@
 # mercury_ros2
-Mercury ros2 package
+Mercury ROS2 package
