@@ -54,7 +54,7 @@ class Window:
         self.win = handle
         self.win.resizable(0, 0)  # 固定窗口大小
 
-        self.model = 0
+        self.model = 1
         self.speed = 50
 
         # 设置默认速度123456
