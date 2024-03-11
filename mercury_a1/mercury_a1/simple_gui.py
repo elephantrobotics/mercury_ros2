@@ -56,8 +56,6 @@ class Window:
 
         self.model = 0
         self.speed = 50
-        
-        self.init_mercury()
 
         # 设置默认速度123456
         self.speed_d = tk.StringVar()
@@ -74,6 +72,20 @@ class Window:
             self.speed,
             self.model
         ]
+        
+        # 机械臂上电
+        if self.mc:
+            lock = acquire("/tmp/mercury_lock")
+            self.mc.power_on()
+            time.sleep(0.05)
+            release(lock)
+            
+        if self.mc:
+            lock = acquire("/tmp/mercury_lock")
+            self.mc.send_angles([0, 0, 0, -90, 0, 90, 0], 40)
+            release(lock)
+            time.sleep(2)
+            
         self.get_date()
 
         # get screen width and height
@@ -108,20 +120,6 @@ class Window:
         tk.Button(self.frmLB, text="夹爪(关)", command=self.gripper_close, width=5).grid(
             row=1, column=1, sticky="w", padx=3, pady=2
         )
-        
-    def init_mercury(self):
-        if self.mc:
-            lock = acquire("/tmp/mercury_lock")
-            self.mc.power_on()
-            time.sleep(0.05)
-            self.mc.go_zero()
-            release(lock)
-            time.sleep(0.2)
-        if self.mc:
-            lock = acquire("/tmp/mercury_lock")
-            self.mc.send_angles([0, 0, 0, 0, 0, 0, 0], 80)
-            release(lock)
-        time.sleep(3)
 
     def set_layout(self):
         self.frmLT = tk.Frame(width=200, height=200)
@@ -444,6 +442,8 @@ class Window:
             int(float(self.get_speed.get())) if self.get_speed.get() else self.speed
         )
         
+        print('Send Coords: {}  Speed: {}  Mode: {}'.format(c_value, self.speed, self.model))
+        
         try:
             if self.mc:
                 lock = acquire("/tmp/mercury_lock")
@@ -464,7 +464,9 @@ class Window:
         )
         
         res = [j_value, self.speed]
-
+        
+        print('Send Angles: {}  Speed: {}'.format(res[0], res[1]))
+        
         try:
             if self.mc:
                 lock = acquire("/tmp/mercury_lock")

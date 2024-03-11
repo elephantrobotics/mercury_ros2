@@ -81,6 +81,6 @@ def generate_launch_description():
         package="mercury_a1",
         executable="simple_gui",
     )
-    res.append(mercury_a1_node)
+    # res.append(mercury_a1_node)
 
     return LaunchDescription(res)

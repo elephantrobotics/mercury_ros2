@@ -101,18 +101,13 @@ def teleop_keyboard():
 
     init_pose = [[0, 0, 0, 0, 0, 0, 0], speed]
     home_pose = [[0, 0, 0, -90, 0, 90, 0], speed]
-    # if mc:
-    #     lock = acquire("/tmp/mercury_lock")
-    #     mc.set_free_mode(1)
-    #     release(lock)
-    #     time.sleep(0.2)
+
     if mc:
         lock = acquire("/tmp/mercury_lock")
         mc.power_on()
         time.sleep(0.05)
-        mc.go_zero()
         release(lock)
-        time.sleep(0.2)
+
 
     if mc:
         lock = acquire("/tmp/mercury_lock")
