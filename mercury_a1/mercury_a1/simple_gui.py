@@ -415,6 +415,7 @@ class Window:
             )
 
     def gripper_open(self):
+        print('Open Gripper...')
         try:
             if self.mc:
                 lock = acquire("/tmp/mercury_lock")
@@ -425,6 +426,7 @@ class Window:
             pass
 
     def gripper_close(self):
+        print('Close Gripper...')
         try:
             if self.mc:
                 lock = acquire("/tmp/mercury_lock")
