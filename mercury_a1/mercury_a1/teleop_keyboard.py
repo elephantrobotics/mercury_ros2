@@ -100,11 +100,11 @@ def teleop_keyboard():
     change_len = 250 * change_percent / 100
 
     init_pose = [[0, 0, 0, 0, 0, 0, 0], speed]
-    home_pose = [[0, 0, 0, -90, 0, 90, 0], speed]
+    home_pose = [[0, 30, 0, -120, 0, 150, 0], speed]
 
     if mc:
         lock = acquire("/tmp/mercury_lock")
-        mc.power_on()
+        mc.focus_all_servos()
         time.sleep(0.05)
         release(lock)
 

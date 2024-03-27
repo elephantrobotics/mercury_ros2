@@ -76,13 +76,13 @@ class Window:
         # 机械臂上电
         if self.mc:
             lock = acquire("/tmp/mercury_lock")
-            self.mc.power_on()
+            self.mc.focus_all_servos()
             time.sleep(0.05)
             release(lock)
             
         if self.mc:
             lock = acquire("/tmp/mercury_lock")
-            self.mc.send_angles([0, 0, 0, -90, 0, 90, 0], 40)
+            self.mc.send_angles([0, 30, 0, -120, 0, 150, 0], 40)
             release(lock)
             time.sleep(2)
             
