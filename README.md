@@ -83,3 +83,13 @@ ros2 launch mercury_a1 teleop_keyboard.launch.py
 ```bash
 ros2 run mercury_a1 teleop_keyboard
 ```
+
+## URDF Model Graph
+
+[Mercury A1](./mercury_description/urdf/mercury_a1/mercury_a1.urdf)
+
+![A1](./demo_img/mercuryA1/mercuryA1.png)
+
+[Mercury B1](./mercury_description/urdf/mercury_b1/mercury_b1.urdf)
+
+![B1](./demo_img/mercuryB1/mercuryB1.png)
