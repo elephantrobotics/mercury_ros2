@@ -12,17 +12,11 @@ from visualization_msgs.msg import Marker
 class Talker(Node):
     def __init__(self):
         super().__init__("follow_display")
-        self.declare_parameter('port1', '/dev/ttyTHS0')
-        self.declare_parameter('port2', '/dev/ttyACM0')
-        self.declare_parameter('baud', 115200)
-   
-        port1 = self.get_parameter("port1").get_parameter_value().string_value
-        port2 = self.get_parameter("port2").get_parameter_value().string_value
-        baud = self.get_parameter("baud").get_parameter_value().integer_value
 
-        self.get_logger().info("left arm:%s, right arm:%s, baud:%d" % (port1, port2, baud))
-        self.l = Mercury(port1, str(baud))
-        self.r = Mercury(port2, str(baud))
+
+        self.get_logger().info("left arm:%s, right arm:%s, baud:%d" % ("/dev/left_arm", "/dev/right_arm", 115200))
+        self.l = Mercury("/dev/left_arm", 115200)
+        self.r = Mercury("/dev/right_arm", 115200)
         
         self.l.release_all_servos()
         time.sleep(0.05)
@@ -83,11 +77,7 @@ class Talker(Node):
                 head_angle = self.r.get_angle(12)
                 body_angle = self.r.get_angle(13)
                 
-                print('left_angles: {}'.format(left_angles))
-                print('right_angles: {}'.format(right_angles))
-                print('camera_angle: {}'.format(eye_angle))
-                print('head_angle: {}'.format(head_angle))
-                print('body_angle: {}'.format(body_angle))
+                print('left_angles: {}, right_angles: {}, camera_angle: {}, head_angle: {}, body_angle: {}'.format(left_angles, right_angles, eye_angle, head_angle, body_angle))
                 
                 all_angles = left_angles + right_angles + [eye_angle] + [head_angle] + [body_angle]
                 data_list = []
