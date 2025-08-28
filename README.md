@@ -53,7 +53,7 @@ Here we take Mercury A1 as an example
 ### 1 test
 
 ```bash
-ros2 launch merury_a1 test.launch.py
+ros2 launch mercury_a1 test.launch.py
 ```
 
 ### 2 slider control
