@@ -1,8 +1,13 @@
 # mercury_ros2
 
-[![jaywcjlove/sb](https://jaywcjlove.github.io/sb/lang/chinese.svg)]([https://www.elephantrobotics.com/docs/myCobot/3-development/4-ros&moveit/](https://docs.elephantrobotics.com/docs/gitbook/12-ApplicationBaseROS/12.2-ROS2/12.2.1-ROS2%E7%9A%84%E5%AE%89%E8%A3%85.html))
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-17-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[中文文档](https://docs.elephantrobotics.com/docs/gitbook/12-ApplicationBaseROS/12.2-ROS2/12.2.1-ROS2%E7%9A%84%E5%AE%89%E8%A3%85.html)
+[![jaywcjlove/sb](https://jaywcjlove.github.io/sb/lang/chinese.svg)](https://docs.elephantrobotics.com/docs/gitbook/12-ApplicationBaseROS/)
+[![jaywcjlove/sb](https://jaywcjlove.github.io/sb/lang/english.svg)](https://docs.elephantrobotics.com/docs/gitbook-en/12-ApplicationBaseROS/)
+
+[中文文档](https://docs.elephantrobotics.com/docs/Mercury_A1_cn/11-ApplicationBaseROS/11.2-ROS2/) | [English Documentation](https://docs.elephantrobotics.com/docs/Mercury_A1_en/11-ApplicationBaseROS/11.2-ROS2/)
 
 Mercury ROS2 package
 
