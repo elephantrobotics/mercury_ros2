@@ -1,23 +1,24 @@
 from setuptools import setup
 
 import os
-
 from glob import glob
 
-package_name = 'mercury_description'
+package_name = 'mercury_e1'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='1.0.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/urdf'+'/mercury_a1', glob("urdf/mercury_a1/*")),
-        ('share/' + package_name + '/urdf'+'/mercury_b1', glob("urdf/mercury_b1/*")),
-        ('share/' + package_name + '/urdf'+'/mercury_e1', glob("urdf/mercury_e1/*")),
-
+        # launch 文件路径
+        (os.path.join('share', package_name, "launch"), glob('launch/*.launch.py')),
+        # python 文件
+        # (os.path.join('lib',package_name),glob(package_name+'/*.py')),
+        # 配置文件
+        (os.path.join('share', package_name, "config"), glob('config/*')),
 
     ],
     install_requires=['setuptools'],
@@ -29,6 +30,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'follow_display = mercury_e1.follow_display:main',
+            'slider_control = mercury_e1.slider_control:main',
         ],
     },
 )
