@@ -3,7 +3,7 @@ from setuptools import setup, __version__ as setuptools_version
 from packaging.version import Version
 from glob import glob
 
-package_name = 'mercury_description'
+package_name = 'mercury_l1'
 
 # Checking the setuptools version
 use_dash_separated_options = Version(setuptools_version) < Version("58.0.0")
@@ -24,7 +24,7 @@ setup_cfg_content = """
 # Write the contents to setup.cfg
 with open("setup.cfg", "w") as f:
     f.write(setup_cfg_content)
-
+    
 setup(
     name=package_name,
     version='0.0.0',
@@ -33,10 +33,12 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/urdf'+'/mercury_a1', glob("urdf/mercury_a1/*")),
-        ('share/' + package_name + '/urdf'+'/mercury_b1', glob("urdf/mercury_b1/*")),
-        ('share/' + package_name + '/urdf'+'/mercury_l1', glob("urdf/mercury_l1/*")),
-
+        # launch file path
+        (os.path.join('share', package_name, "launch"), glob('launch/*.launch.py')),
+        # python file
+        # (os.path.join('lib',package_name),glob(package_name+'/*.py')),
+        # Configuration File
+        (os.path.join('share', package_name, "config"), glob('config/*')),
 
     ],
     install_requires=['setuptools'],
@@ -48,6 +50,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'follow_display = mercury_l1.follow_display:main',
+            'slider_control = mercury_l1.slider_control:main',
         ],
     },
 )
