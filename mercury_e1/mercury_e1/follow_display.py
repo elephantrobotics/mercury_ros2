@@ -2,11 +2,9 @@ import rclpy
 import time
 import traceback
 import math
-from pymycobot.mercury import Mercury
+from pymycobot.mercury_e1 import MercuryE1
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Header
-from visualization_msgs.msg import Marker
 
 
 class Talker(Node):
@@ -14,116 +12,59 @@ class Talker(Node):
         super().__init__("follow_display")
 
 
-        self.get_logger().info("left arm:%s, right arm:%s, baud:%d" % ("/dev/left_arm", "/dev/right_arm", 115200))
-        self.l = Mercury("/dev/left_arm", 115200)
-        self.r = Mercury("/dev/right_arm", 115200)
-        
-        self.l.release_all_servos()
+        # Declare robot connection parameters
+        self.declare_parameter('port', '/dev/ttyUSB0')
+        self.declare_parameter('buad', 1000000)
+
+        port = self.get_parameter("port").get_parameter_value().string_value
+        baud = self.get_parameter("baud").get_parameter_value().integer_value
+
+        self.get_logger().info("port:%s, baud:%d" % (port, baud))
+        self.mercury_e1 = MercuryE1(port, baud)
         time.sleep(0.05)
-        self.r.release_all_servos()
+        if self.mercury_e1.is_power_on !=1:
+            self.mercury_e1.power_on()
+        time.sleep(0.05)
+        if self.mercury_e1.get_fresh_mode() != 1:
+            self.mercury_e1.set_fresh_mode(1)
+        time.sleep(0.05)
+        
+        self.mercury_e1.set_motor_enabled(254, 0)
         time.sleep(0.05)
         print("Rlease all servos over.\n")
-
-    def start(self):
-        pub = self.create_publisher(
+        
+        self.command_pub = self.create_publisher(
             msg_type=JointState,
             topic="joint_states",
             qos_profile=10
         )
-        pub_marker = self.create_publisher(
-            msg_type=Marker,
-            topic="visualization_marker",
-            qos_profile=10
-        )
+
+    def publish_joint_command(self, angles_deg):
+        """Mirror a 7-axis target to RVIZ as radians."""
+        if self.command_pub is None:
+            return
+
+        command = JointState()
+        command.header.stamp = self.get_clock().now().to_msg()
+        command.name = ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6", "Joint7"]
+        command.position = [math.radians(value) for value in angles_deg[:7]]
+        command.velocity = []
+        command.effort = []
+        self.command_pub.publish(command)
+        
+    def start(self):
+
         rate = self.create_rate(30)
-
-        # pub joint state
-        joint_state_send = JointState()
-        joint_state_send.header = Header()
-
-        joint_state_send.name = [
-        "joint1_L",
-        "joint2_L",
-        "joint3_L",
-        "joint4_L",
-        "joint5_L",
-        "joint6_L",
-        "joint7_L",
-        "joint1_R",
-        "joint2_R",
-        "joint3_R",
-        "joint4_R",
-        "joint5_R",
-        "joint6_R",
-        "joint7_R",
-        "eye",
-        "head",
-        "body",
-    ] 
-        joint_state_send.velocity = [0.0,]
-        joint_state_send.effort = []
-
-        marker_ = Marker()
-        marker_.header.frame_id = "/base"
-        marker_.ns = "my_namespace"
 
         while rclpy.ok():
             rclpy.spin_once(self)
-            joint_state_send.header.stamp = self.get_clock().now().to_msg()
             try:
-                left_angles = self.l.get_angles()
-                right_angles = self.r.get_angles()
-                eye_angle = self.r.get_angle(11)
-                head_angle = self.r.get_angle(12)
-                body_angle = self.r.get_angle(13)
-                
-                print('left_angles: {}, right_angles: {}, camera_angle: {}, head_angle: {}, body_angle: {}'.format(left_angles, right_angles, eye_angle, head_angle, body_angle))
-                
-                all_angles = left_angles + right_angles + [eye_angle] + [head_angle] + [body_angle]
-                data_list = []
-                for _, value in enumerate(all_angles):
-                    radians = math.radians(value)
-                    data_list.append(radians)
-
-                # self.get_logger().info('radians: {}'.format(data_list))
-                joint_state_send.position = data_list
-
-                pub.publish(joint_state_send)
-                
-                left_coords = self.l.get_coords()
-                right_coords = self.r.get_coords()
-                eye_coords = [self.r.get_angle(11)]
-                head_coords = [self.r.get_angle(12)]
-                body_coords = [self.r.get_angle(13)]
-                
-                # marker
-                marker_.header.stamp = self.get_clock().now().to_msg()
-                marker_.type = marker_.SPHERE
-                marker_.action = marker_.ADD
-                marker_.scale.x = 0.04
-                marker_.scale.y = 0.04
-                marker_.scale.z = 0.04
-
-                # marker position initial    
-                if not left_coords:
-                    left_coords = [0, 0, 0, 0, 0, 0, 0]
-                    self.get_logger().info("error [101]: can not get coord values")
-
-                marker_.pose.position.x = left_coords[1] / 1000 * -1
-                marker_.pose.position.y = left_coords[0] / 1000
-                marker_.pose.position.z = left_coords[2] / 1000
-
-                marker_.pose.position.x = right_coords[1] / 1000 * -1
-                marker_.pose.position.y = right_coords[0] / 1000
-                marker_.pose.position.z = right_coords[2] / 1000
-
-                marker_.pose.position.x = eye_coords[0] / 1000 * -1
-                marker_.pose.position.x = head_coords[0] / 1000 * -1
-                marker_.pose.position.x = body_coords[0] / 1000 * -1
-                
-                marker_.color.a = 1.0
-                marker_.color.g = 1.0
-                pub_marker.publish(marker_)
+                # Get robot joint angles
+                angles = self.mercury_e1.get_angles()
+                if isinstance(angles, list) and len(angles) > 6:
+                    self.publish_joint_command(angles)
+                else:
+                    self.get_logger().warn("Failed to get valid angles: {}".format(angles))
 
                 rate.sleep()
             except Exception as e:
@@ -131,12 +72,17 @@ class Talker(Node):
                 print(str(e))
         
 def main(args=None):
+    """Main function to run the Talker node.
+
+    Args:
+        args (list, optional): Command-line arguments for ROS2. Defaults to None.
+    """
     rclpy.init(args=args)
-    
+
     talker = Talker()
     talker.start()
     rclpy.spin(talker)
-    
+
     talker.destroy_node()
     rclpy.shutdown()
     

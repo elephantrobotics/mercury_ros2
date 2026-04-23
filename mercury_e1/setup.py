@@ -33,11 +33,11 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        # launch 文件路径
+        # launch path
         (os.path.join('share', package_name, "launch"), glob('launch/*.launch.py')),
-        # python 文件
+        # python file
         # (os.path.join('lib',package_name),glob(package_name+'/*.py')),
-        # 配置文件
+        # config file
         (os.path.join('share', package_name, "config"), glob('config/*')),
 
     ],
@@ -52,6 +52,9 @@ setup(
         'console_scripts': [
             'follow_display = mercury_e1.follow_display:main',
             'slider_control = mercury_e1.slider_control:main',
+            'teleop_keyboard = mercury_e1.teleop_keyboard:main',
+            'listen_real_service = mercury_e1.listen_real_service:main',
+            'simple_gui = mercury_e1.simple_gui:main',
         ],
     },
 )

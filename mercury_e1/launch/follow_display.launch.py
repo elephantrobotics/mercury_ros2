@@ -12,21 +12,15 @@ from launch.substitutions import Command, LaunchConfiguration
 def generate_launch_description():
     res = []
     
-    port1_launch_arg = DeclareLaunchArgument(
-        name="port1",
-        default_value="/dev/ttyTHS0"
+    port_launch_arg = DeclareLaunchArgument(
+        name="port",
+        default_value="/dev/ttyUSB0"
     )
-    res.append(port1_launch_arg)
-    
-    port2_launch_arg = DeclareLaunchArgument(
-        name="port2",
-        default_value="/dev/ttyACM0"
-    )
-    res.append(port2_launch_arg)
+    res.append(port_launch_arg)
 
     baud_launch_arg = DeclareLaunchArgument(
         name="baud",
-        default_value="115200"
+        default_value="1000000"
     )
     res.append(baud_launch_arg)
 
@@ -34,7 +28,7 @@ def generate_launch_description():
         "model",
         default_value=os.path.join(
             get_package_share_directory("mercury_description"),
-            "urdf/mercury_b1/mercury_b1.urdf"
+            "urdf/mercury_e1/mercury_e1.urdf"
         )
     )
     res.append(model_launch_arg)
@@ -42,8 +36,8 @@ def generate_launch_description():
     rvizconfig_launch_arg = DeclareLaunchArgument(
         "rvizconfig",
         default_value=os.path.join(
-            get_package_share_directory("mercury_b1"),
-            "config/mercury_b1.rviz"
+            get_package_share_directory("mercury_e1"),
+            "config/mercury_e1.rviz"
         )
     )
     res.append(rvizconfig_launch_arg)
@@ -62,8 +56,12 @@ def generate_launch_description():
     res.append(robot_state_publisher_node)
 
     follow_display_node = Node(
-        package="mercury_b1",
+        package="mercury_e1",
         executable="follow_display",
+        parameters=[
+            {'port': LaunchConfiguration('port')},
+            {'baud': LaunchConfiguration('baud')}
+        ],
         name="follow_display",
         output="screen"
     )
