@@ -4,6 +4,14 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="MercuryE1">
+
+  <link name="dummy_link"/>
+
+  <joint name="dummy" type="fixed">
+    <parent link="dummy_link"/>
+    <child link="base_link"/>
+  </joint>
+
   <link
     name="base_link">
     <inertial>
@@ -22,7 +30,7 @@
     </inertial>
     <visual>
       <origin
-        xyz="0 0 0"
+        xyz="0 -0.03745 0.72"
         rpy="0 0 0" />
       <geometry>
         <mesh
@@ -36,7 +44,7 @@
     </visual>
     <collision>
       <origin
-        xyz="0 0 0"
+        xyz="0 -0.03745 0.72"
         rpy="0 0 0" />
       <geometry>
         <mesh
@@ -85,10 +93,10 @@
     </collision>
   </link>
   <joint
-    name="J1"
+    name="Joint1"
     type="revolute">
     <origin
-      xyz="-0.000749999816993875 0.0374529801453609 -0.465449956874081"
+      xyz="0 0 0.255"
       rpy="0 0 0" />
     <parent
       link="base_link" />
@@ -99,8 +107,8 @@
     <limit
       lower="-2.7"
       upper="2.7"
-      effort="0"
-      velocity="0" />
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J2_Link">
@@ -143,7 +151,7 @@
     </collision>
   </link>
   <joint
-    name="J2"
+    name="Joint2"
     type="revolute">
     <origin
       xyz="0 -0.0365011426633475 -0.0292499753403238"
@@ -157,8 +165,8 @@
     <limit
       lower="-0.96"
       upper="1.83"
-      effort="0"
-      velocity="0" />
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J3_Link">
@@ -201,7 +209,7 @@
     </collision>
   </link>
   <joint
-    name="J3"
+    name="Joint3"
     type="revolute">
     <origin
       xyz="0.000749999999985258 0.0365481432413965 0.156250000000001"
@@ -215,8 +223,8 @@
     <limit
       lower="-2.79"
       upper="2.79"
-      effort="0"
-      velocity="0" />
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J4_Link">
@@ -259,7 +267,7 @@
     </collision>
   </link>
   <joint
-    name="J4"
+    name="Joint4"
     type="revolute">
     <origin
       xyz="0.0149999999999998 -0.0389999807242169 0.111"
@@ -269,12 +277,12 @@
     <child
       link="J4_Link" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
     <limit
-      lower="-0.314"
-      upper="2.356"
-      effort="0"
-      velocity="0" />
+      lower="-2.35"
+      upper="0.314"
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J5_Link">
@@ -317,7 +325,7 @@
     </collision>
   </link>
   <joint
-    name="J5"
+    name="Joint5"
     type="revolute">
     <origin
       xyz="-0.0149999999999995 0.0390000000000039 0.11995"
@@ -331,8 +339,8 @@
     <limit
       lower="-2.79"
       upper="2.79"
-      effort="0"
-      velocity="0" />
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J6_Link">
@@ -375,7 +383,7 @@
     </collision>
   </link>
   <joint
-    name="J6"
+    name="Joint6"
     type="revolute">
     <origin
       xyz="0 -0.0374999999991969 0.107499932214404"
@@ -387,10 +395,10 @@
     <axis
       xyz="0 -1 0" />
     <limit
-      lower="-2.042"
-      upper="1.745"
-      effort="0"
-      velocity="0" />
+      lower="-1.74"
+      upper="2.042"
+      effort="10000"
+      velocity="2" />
   </joint>
   <link
     name="J7_Link">
@@ -433,7 +441,7 @@
     </collision>
   </link>
   <joint
-    name="J7"
+    name="Joint7"
     type="revolute">
     <origin
       xyz="0 0.037499986816365 0.0819499999999993"
@@ -445,9 +453,9 @@
     <axis
       xyz="0 0 1" />
     <limit
-      lower="-2.356"
-      upper="2.356"
-      effort="0"
-      velocity="0" />
+      lower="-2.35"
+      upper="2.35"
+      effort="10000"
+      velocity="2" />
   </joint>
 </robot>
