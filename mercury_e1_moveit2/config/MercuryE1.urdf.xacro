@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="MercuryE1">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import MercuryE1 urdf file -->
+    <xacro:include filename="$(find mercury_description)/urdf/mercury_e1/mercury_e1.urdf" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="MercuryE1.ros2_control.xacro" />
+
+
+    <xacro:MercuryE1_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>

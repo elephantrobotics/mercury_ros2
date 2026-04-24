@@ -18,7 +18,7 @@ class Slider_Subscriber(Node):
         
         # Declare robot connection parameters
         self.declare_parameter('port', '/dev/ttyUSB0')
-        self.declare_parameter('buad', 1000000)
+        self.declare_parameter('baud', 1000000)
 
         port = self.get_parameter("port").get_parameter_value().string_value
         baud = self.get_parameter("baud").get_parameter_value().integer_value

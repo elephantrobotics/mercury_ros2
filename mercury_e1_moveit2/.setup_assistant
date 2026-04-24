@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: mercury_description
+    relative_path: urdf/mercury_e1/mercury_e1.urdf
+  srdf:
+    relative_path: config/MercuryE1.srdf
+  package_settings:
+    author_name: wangweijian
+    author_email: weijian.wang@elephantrobotics.com
+    generated_timestamp: 1776995632
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
