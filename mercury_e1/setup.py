@@ -50,7 +50,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'follow_display = mercury_e1.follow_display:main',
             'slider_control = mercury_e1.slider_control:main',
             'teleop_keyboard = mercury_e1.teleop_keyboard:main',
             'listen_real_service = mercury_e1.listen_real_service:main',

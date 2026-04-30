@@ -1,7 +1,6 @@
 import math
 import time
-import os
-import fcntl
+import threading
 import rclpy
 import traceback
 from rclpy.node import Node
@@ -28,46 +27,6 @@ print('pymycobot library version meets the requirements!')
 from pymycobot import MercuryE1
 
 
-def acquire(lock_file):
-    """Acquire a file lock to prevent concurrent access.
-
-    Args:
-        lock_file (str): Path to the lock file.
-
-    Returns:
-        int | None: File descriptor if lock acquired, None if failed.
-    """
-    try:
-        file_descriptor = os.open(lock_file, os.O_RDWR | os.O_CREAT | os.O_TRUNC)
-    except OSError as erro_info:
-        print(f"Failed to open lock file {lock_file}: {erro_info}")
-        return None
-    timeout = 50.0
-    start_time = current_time = time.time()
-    while current_time < start_time + timeout:
-        try:
-            fcntl.flock(file_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            return file_descriptor
-        except:
-            time.sleep(1)
-            current_time = time.time()
-    os.close(file_descriptor)
-    return None
-
-
-def release(fd):
-    """Release a previously acquired file lock.
-
-    Args:
-        fd (int): File descriptor of the lock file.
-    """
-    try:
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        os.close(fd)
-    except:
-        pass
-
-
 class MercuryDriver(Node):
     """ROS2 node for controlling the Mercury E1 robot arm.
 
@@ -81,7 +40,7 @@ class MercuryDriver(Node):
         
         # Declare robot connection parameters
         self.declare_parameter('port', '/dev/ttyUSB0')
-        self.declare_parameter('buad', 1000000)
+        self.declare_parameter('baud', 1000000)
 
         port = self.get_parameter("port").get_parameter_value().string_value
         baud = self.get_parameter("baud").get_parameter_value().integer_value
@@ -96,9 +55,10 @@ class MercuryDriver(Node):
             self.mercury_e1.set_fresh_mode(0)
         time.sleep(0.05)
         self.mercury_e1.set_limit_switch(2, 0)
+        self.robot_lock = threading.Lock()
         
         self.pub = self.create_publisher(JointState, 'joint_states', 10)
-        self.timer = self.create_timer(0.02, self.publish_joint_states)
+        self.timer = self.create_timer(0.1, self.publish_joint_states)
 
         # Service servers
         self.srv_angles = self.create_service(SetAngles, 'set_angles', self.set_angles_callback)
@@ -111,10 +71,9 @@ class MercuryDriver(Node):
     def publish_joint_states(self):
         """Publish current joint states to the `joint_states` topic."""
         try:
-            lock = acquire('/tmp/mycobot_lock')
-            angles = self.mercury_e1.get_angles()
-            gripper_value = self.mercury_e1.get_pro_gripper_angle()
-            release(lock)
+            with self.robot_lock:
+                angles = self.mercury_e1.get_angles()
+                gripper_value = self.mercury_e1.get_pro_gripper_angle()
             # self.get_logger().info(f"Raw angles from MyCobot: {angles}")
             if not angles or not isinstance(angles, list) or len(angles) != 7:
                 self.get_logger().warn("Failed to get valid joint angles, fallback to [-1] * 7.")
@@ -153,7 +112,6 @@ class MercuryDriver(Node):
             whether the operation succeeded.
         """
         try:
-            lock = acquire('/tmp/mycobot_lock')
             angles = [
                 request.joint_1,
                 request.joint_2,
@@ -164,12 +122,11 @@ class MercuryDriver(Node):
                 request.joint_7,
             ]
             speed = request.speed
-            self.mercury_e1.send_angles(angles, speed)
-            release(lock)
+            with self.robot_lock:
+                self.mercury_e1.send_angles(angles, speed)
             response.flag = True
         except Exception as e:
             e = traceback.format_exc()
-            release(lock)
             self.get_logger().error(f"SetJointAngles service error: {e}")
             response.flag = False
         return response
@@ -188,10 +145,9 @@ class MercuryDriver(Node):
             whether the operation succeeded.
         """
         try:
-            lock = acquire('/tmp/mycobot_lock')
             coords = [request.x, request.y, request.z, request.rx, request.ry, request.rz]
-            self.mercury_e1.send_coords(coords, request.speed)
-            release(lock)
+            with self.robot_lock:
+                self.mercury_e1.send_coords(coords, request.speed)
             response.flag = True
         except Exception as e:
             e = traceback.format_exc()
@@ -212,9 +168,8 @@ class MercuryDriver(Node):
             (x, y, z, rx, ry, rz).
         """
         try:
-            lock = acquire('/tmp/mycobot_lock')
-            coords = self.mercury_e1.get_coords()
-            release(lock)
+            with self.robot_lock:
+                coords = self.mercury_e1.get_coords()
             if not coords or len(coords) != 6:
                 return
             if coords and all(c != -1 for c in coords) and len(coords) == 6:
@@ -238,9 +193,8 @@ class MercuryDriver(Node):
             GetAngles.Response: The response containing six joint angles.
         """
         try:
-            lock = acquire('/tmp/mycobot_lock')
-            angles = self.mercury_e1.get_angles()
-            release(lock)
+            with self.robot_lock:
+                angles = self.mercury_e1.get_angles()
             if angles and all(a != -1 for a in angles) and len(angles) == 7:
                 (response.joint_1, response.joint_2, response.joint_3,
                  response.joint_4, response.joint_5, response.joint_6, response.joint_7) = angles
@@ -265,12 +219,11 @@ class MercuryDriver(Node):
             whether the operation succeeded.
         """
         try:
-            lock = acquire('/tmp/mycobot_lock')
-            if request.status:
-                self.mercury_e1.set_pro_gripper_open()
-            else:
-                self.mercury_e1.set_pro_gripper_close()
-            release(lock)
+            with self.robot_lock:
+                if request.status:
+                    self.mercury_e1.set_pro_gripper_open()
+                else:
+                    self.mercury_e1.set_pro_gripper_close()
             response.flag = True
         except Exception as e:
             e = traceback.format_exc()
@@ -281,9 +234,8 @@ class MercuryDriver(Node):
     def get_force_gripper_callback(self, request, response):
         """Get current force gripper angle."""
         try:
-            lock = acquire('/tmp/mycobot_lock')
-            gripper_angle = self.mercury_e1.get_pro_gripper_angle()
-            release(lock)
+            with self.robot_lock:
+                gripper_angle = self.mercury_e1.get_pro_gripper_angle()
 
             response.gripper_angle = int(gripper_angle)
         except Exception as e:

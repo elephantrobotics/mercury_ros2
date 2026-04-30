@@ -44,7 +44,7 @@ class WindowNode(Node):
         self.win = handle
         self.win.resizable(0, 0)  # Fixed window size
 
-        self.speed = 50
+        self.speed = 25
 
         # Default speed variable
         self.speed_d = tk.StringVar()
@@ -61,11 +61,12 @@ class WindowNode(Node):
         ]
         # Command queue and background worker
         self.cmd_queue = queue.Queue()
+        self.ros_spin_lock = threading.Lock()
         threading.Thread(target=self.worker, daemon=True).start()
 
-        # self.get_date()  # Initialize data from the robot
-        self.record_coords[0] = self.get_initial_coords()
-        self.res_angles[0] = self.get_initial_angles()
+        self.get_date()  # Initialize data from the robot
+        # self.record_coords[0] = self.get_initial_coords()[0]
+        # self.res_angles[0] = self.get_initial_angles()
         # Screen dimensions
         self.ws = self.win.winfo_screenwidth()
         self.hs = self.win.winfo_screenheight()
@@ -73,7 +74,7 @@ class WindowNode(Node):
         # Calculate window position
         x = (self.ws / 2) - 190
         y = (self.hs / 2) - 250
-        self.win.geometry("470x440+{}+{}".format(int(x), int(y)))
+        self.win.geometry("470x470+{}+{}".format(int(x), int(y)))
 
         # GUI layout and widgets
         self.set_layout()
@@ -144,11 +145,15 @@ class WindowNode(Node):
                 self.get_logger().warn(f"worker error: {e}")
 
     def wait_for_future(self, future, timeout=3.0):
-        """Wait for a future to complete with timeout (non-blocking ROS executor)."""
+        """Wait for a future to complete without spinning this node concurrently."""
         start = time.time()
-        while not future.done() and (time.time() - start) < timeout:
-            # Only process the callback once, so the GUI will not be blocked
-            rclpy.spin_once(self, timeout_sec=0.1)
+        with self.ros_spin_lock:
+            while rclpy.ok() and not future.done() and (time.time() - start) < timeout:
+                rclpy.spin_once(self, timeout_sec=0.1)
+
+        if not future.done():
+            self.get_logger().warn(f"ROS service call timed out after {timeout:.1f}s")
+            return None
         return future.result()
 
     def get_initial_coords(self):
@@ -191,11 +196,11 @@ class WindowNode(Node):
         request = SetCoords.Request()
         request.x, request.y, request.z, request.rx, request.ry, request.rz = coords
         request.speed = self.record_coords[1]
-
         future = self.set_coords_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
-        if future.result() is None:
+        result = self.wait_for_future(future, timeout=10.0)
+        if result is None:
             self.get_logger().error('Failed to set coordinates')
+        
 
     def send_angles(self, angles):
         """Send joint angles to the robot.
@@ -205,12 +210,11 @@ class WindowNode(Node):
         """
         request = SetAngles.Request()
         (request.joint_1, request.joint_2, request.joint_3,
-         request.joint_4, request.joint_5, request.joint_6, request._joint_7) = angles
+         request.joint_4, request.joint_5, request.joint_6, request.joint_7) = angles
         request.speed = self.speed
-
         future = self.set_angles_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
-        if future.result() is None:
+        result = self.wait_for_future(future, timeout=10.0)
+        if result is None:
             self.get_logger().error('Failed to set angles')
 
     '''
@@ -420,8 +424,9 @@ class WindowNode(Node):
 
         for idx, val in enumerate(c_value):
             if not (self.coords_min[idx] <= val <= self.coords_max[idx]):
+                coord_name = ['X', 'Y', 'Z', 'RX', 'RY', 'RZ'][idx]
                 self.show_error(
-                    f"Coordinate {['X','Y','Z','RX'][idx]} input value is out of range "
+                    f"Coordinate {coord_name} input value is out of range "
                     f"{self.coords_min[idx]}~{self.coords_max[idx]}"
                 )
                 return

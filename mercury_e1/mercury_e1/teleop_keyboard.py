@@ -31,26 +31,27 @@ Other:
 """
 
 COORD_LIMITS = {
-    'x': (-466, 466),
-    'y': (-466, 466),
-    'z': (-180, 677),
+    'x': (-623, 623),
+    'y': (-623, 623),
+    'z': (-172, 846),
     'rx': (-180, 180),
     'ry': (-180, 180),
     'rz': (-180, 180)
 }
 
 
-def vels(speed, turn):
+def vels(angle_speed, coord_speed, turn):
     """Return current speed and percent change information.
 
     Args:
-        speed (int): Movement speed value.
+        angle_speed (int): angle Movement speed value.
+        coord_speed (int): coord Movement speed value.
         turn (int): Percentage change for movement step size.
 
     Returns:
         str: Formatted string with current speed and change percent.
     """
-    return "currently:\tspeed: %s\tchange percent: %s  " % (speed, turn)
+    return "currently:\tangle_speed: %s\tcoord_speed: %s \tchange percent: %s  " % (angle_speed, coord_speed, turn)
 
 
 class Raw(object):
@@ -94,14 +95,15 @@ class TeleopKeyboardNode(Node):
         while not self.set_angles_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('Service not available, waiting again...')
 
-        self.speed = 50
+        self.angle_speed = 25
+        self.coord_speed = 80
         self.change_percent = 5  # Percentage of change
 
         self.change_angle = 180 * self.change_percent / 100
         self.change_len = 250 * self.change_percent / 100
 
         self.init_pose = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        self.home_pose = [0.0, -10.0, -123.0, 45.0, 0.0, 0.0, 0.0]
+        self.home_pose = [0.12, 8.84, 0.8, -91.83, 3.42, -71.22, -0.01]
 
         self.record_coords = self.get_initial_coords()
         
@@ -118,10 +120,10 @@ class TeleopKeyboardNode(Node):
         rclpy.spin_until_future_complete(self, future)
         if future.result() is not None:
             return [[future.result().x, future.result().y, future.result().z,
-                     future.result().rx, future.result().ry, future.result().rz], self.speed]
+                     future.result().rx, future.result().ry, future.result().rz], self.coord_speed]
         else:
             self.get_logger().error('Failed to get coordinates')
-            return [[-1, -1, -1, -1, -1, -1], self.speed]
+            return [[-1, -1, -1, -1, -1, -1], self.coord_speed]
 
     def get_initial_angles(self):
         """Fetch current joint angles from the robot.
@@ -172,7 +174,7 @@ class TeleopKeyboardNode(Node):
         request = SetAngles.Request()
         (request.joint_1, request.joint_2, request.joint_3,
          request.joint_4, request.joint_5, request.joint_6, request._joint_7) = angles
-        request.speed = self.speed
+        request.speed = self.angle_speed
 
         future = self.set_angles_client.call_async(request)
         rclpy.spin_until_future_complete(self, future)
@@ -195,7 +197,7 @@ class TeleopKeyboardNode(Node):
     def keyboard_listener(self):
         """Listen for keyboard input and execute corresponding robot actions."""
         print(MSG)
-        print(vels(self.speed, self.change_percent))
+        print(vels(self.angle_speed, self.coord_speed, self.change_percent))
         while rclpy.ok():
             try:
                 with Raw(sys.stdin):
