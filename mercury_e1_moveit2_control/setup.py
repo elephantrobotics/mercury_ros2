@@ -48,7 +48,6 @@ setup(
     entry_points={
         'console_scripts': [
             'sync_plan = mercury_e1_moveit2_control.sync_plan:main',
-            'e1_moveit_sync_plan = mercury_e1_moveit2_control.e1_moveit_sync_plan:main',
         ],
     },
 )
