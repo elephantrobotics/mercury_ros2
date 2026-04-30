@@ -103,7 +103,7 @@
     <child
       link="J1_Link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.7"
       upper="2.7"
@@ -219,7 +219,7 @@
     <child
       link="J3_Link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.79"
       upper="2.79"
@@ -335,7 +335,7 @@
     <child
       link="J5_Link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <limit
       lower="-2.79"
       upper="2.79"
