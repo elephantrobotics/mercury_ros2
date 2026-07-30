@@ -34,7 +34,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/urdf'+'/mercury_a1', glob("urdf/mercury_a1/*")),
+        ('share/' + package_name + '/urdf/mercury_a1', glob("urdf/mercury_a1/*.urdf")),
+        ('share/' + package_name + '/urdf/mercury_a1/meshes', glob("urdf/mercury_a1/meshes/*.STL")),
         ('share/' + package_name + '/urdf'+'/mercury_b1', glob("urdf/mercury_b1/*")),
 
 
