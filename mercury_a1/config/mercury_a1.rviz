@@ -49,21 +49,21 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        base:
+        base_link:
           Value: true
-        joint1:
+        link1:
           Value: true
-        joint2:
+        Link2:
           Value: true
-        joint3:
+        Link3:
           Value: true
-        joint4:
+        Link4:
           Value: true
-        joint5:
+        Link5:
           Value: true
-        joint6:
+        Link6:
           Value: true
-        joint7:
+        Link7:
           Value: true
       Marker Scale: 0.10000000149011612
       Name: TF
@@ -71,14 +71,14 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        base:
-          joint1:
-            joint2:
-              joint3:
-                joint4:
-                  joint5:
-                    joint6:
-                      joint7:
+        base_link:
+          link1:
+            Link2:
+              Link3:
+                Link4:
+                  Link5:
+                    Link6:
+                      Link7:
                         {}
       Update Interval: 0
       Value: true
@@ -100,42 +100,42 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base:
+        base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint1:
+        Link1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint2:
+        Link2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint3:
+        Link3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint4:
+        Link4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint5:
+        Link5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint6:
+        Link6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        joint7:
+        Link7:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -148,7 +148,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:

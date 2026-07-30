@@ -7,7 +7,6 @@ from pymycobot.mercury import Mercury
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
-from visualization_msgs.msg import Marker
 
 
 
@@ -54,7 +53,7 @@ class Talker(Node):
         super().__init__("follow_display")
         self.declare_parameter('port', '/dev/ttyAMA1')
         self.declare_parameter('baud', 115200)
-   
+
         port = self.get_parameter("port").get_parameter_value().string_value
         baud = self.get_parameter("baud").get_parameter_value().integer_value
 
@@ -71,11 +70,7 @@ class Talker(Node):
             topic="joint_states",
             qos_profile=10
         )
-        pub_marker = self.create_publisher(
-            msg_type=Marker,
-            topic="visualization_marker",
-            qos_profile=10
-        )
+
         rate = self.create_rate(30)
 
         # pub joint state
@@ -83,20 +78,16 @@ class Talker(Node):
         joint_state_send.header = Header()
 
         joint_state_send.name = [
-            "joint1_to_base",
-            "joint2_to_joint1",
-            "joint3_to_joint2",
-            "joint4_to_joint3",
-            "joint5_to_joint4",
-            "joint6_to_joint5",
-            "joint7_to_joint6",
+            "joint1",
+            "joint2",
+            "joint3",
+            "joint4",
+            "joint5",
+            "joint6",
+            "joint7",
         ] 
         joint_state_send.velocity = [0.0,]
         joint_state_send.effort = []
-
-        marker_ = Marker()
-        marker_.header.frame_id = "/base"
-        marker_.ns = "my_namespace"
 
         while rclpy.ok():
             rclpy.spin_once(self)
@@ -115,35 +106,6 @@ class Talker(Node):
                 joint_state_send.position = data_list
 
                 pub.publish(joint_state_send)
-                
-                if self.mc:
-                    lock = acquire("/tmp/mercury_lock")
-                    coords = self.mc.get_coords()
-                    release(lock)
-                # marker
-                marker_.header.stamp = self.get_clock().now().to_msg()
-                marker_.type = marker_.SPHERE
-                marker_.action = marker_.ADD
-                marker_.scale.x = 0.04
-                marker_.scale.y = 0.04
-                marker_.scale.z = 0.04
-
-                # marker position initial
-                # self.get_logger().info('{}'.format(coords))
-                
-                if not coords:
-                    coords = [0, 0, 0, 0, 0, 0, 0]
-                    # self.get_logger().info("error [101]: can not get coord values")
-                if self.mc:
-                    lock = acquire("/tmp/mercury_lock")
-                    marker_.pose.position.x = coords[1] / 1000 * -1
-                    marker_.pose.position.y = coords[0] / 1000
-                    marker_.pose.position.z = coords[2] / 1000
-                    release(lock)
-
-                marker_.color.a = 1.0
-                marker_.color.g = 1.0
-                pub_marker.publish(marker_)
 
                 rate.sleep()
             except Exception as e:
